@@ -4,7 +4,7 @@ A lightweight emergency department shift management application.
 
 ## Live Demo
 
-https://shaheenahmed1990.github.io/ShiftMate-ER/
+https://shaheenmedtech.github.io/ShiftMate-ER/
 
 ## Features
 
