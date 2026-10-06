@@ -1,0 +1,91 @@
+name: Bug report
+description: Report a reproducible problem in ShiftMate ER
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve ShiftMate ER.
+
+        **Privacy and safety:** Do not include real patient identifiers, protected health information, credentials, secrets, or other sensitive data in this public issue. Use synthetic examples only.
+
+        For security vulnerabilities or sensitive privacy issues, follow the process in [SECURITY.md](../../SECURITY.md) instead of filing a public bug report.
+
+  - type: dropdown
+    id: build
+    attributes:
+      label: Affected build
+      description: Where did the problem occur?
+      options:
+        - Web application
+        - Linux desktop application
+        - Windows desktop application
+        - Development build
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Release version or commit SHA, if known.
+      placeholder: "Example: v1.1.0"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system, browser/WebView, and relevant version information.
+      placeholder: "Example: Fedora 44 KDE, Brave 154"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide the smallest reproducible sequence using synthetic or non-sensitive data.
+      placeholder: |
+        1. Open ...
+        2. Select ...
+        3. Enter synthetic test data ...
+        4. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Additional context
+      description: Add sanitized logs, screenshots, or other context if useful. Remove all sensitive information first.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues for the same problem.
+          required: true
+        - label: I confirmed this report contains no real patient data, credentials, secrets, or other sensitive information.
+          required: true
