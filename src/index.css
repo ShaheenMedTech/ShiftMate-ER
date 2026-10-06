@@ -32,9 +32,11 @@
 }
 
 /* Keep the existing outline utility accessible in forced-colors mode. */
-@utility outline-none {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
+@layer utilities {
+  .outline-none {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
 }
 
 /* Existing resets belong below utilities in the v4 cascade. */
