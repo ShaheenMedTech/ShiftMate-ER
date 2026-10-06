@@ -1,0 +1,72 @@
+name: Feature request
+description: Suggest an improvement or new capability for ShiftMate ER
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement to ShiftMate ER.
+
+        Keep examples synthetic. Do not include real patient identifiers, protected health information, credentials, secrets, or other sensitive information.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or workflow need
+      description: What workflow problem would this feature solve?
+      placeholder: Describe the need rather than only the desired interface.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the feature or behavior you would like.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Shift management
+        - Cases
+        - Tasks
+        - Notes
+        - Reminders
+        - Handover
+        - History
+        - Settings
+        - Web application
+        - Desktop application
+        - Accessibility / localization
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe any workaround or alternative approach you considered.
+
+  - type: textarea
+    id: safety
+    attributes:
+      label: Clinical, privacy, or security considerations
+      description: Note any implications for patient safety, sensitive data, access control, storage, or privacy. Use synthetic examples only.
+      placeholder: "Example: This would introduce export of locally stored records and would need privacy review."
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues for a similar request.
+          required: true
+        - label: I confirmed this request contains no real patient data, credentials, secrets, or other sensitive information.
+          required: true
