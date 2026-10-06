@@ -46,4 +46,4 @@ Available for:
 
 ## License
 
-This project is currently provided for personal and educational use.
+ShiftMate ER is licensed under the [MIT License](LICENSE).
