@@ -32,9 +32,9 @@ function Shell() {
   }
 
   return (
-    <div className={`h-full flex ${ui.bg}`}>
+    <div className={`h-full flex flex-col md:flex-row ${ui.bg}`}>
       <BottomNav />
-      <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
+      <main className="flex-1 min-h-0 min-w-0 flex flex-col overflow-hidden">
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/shift" element={<Shift />} />
