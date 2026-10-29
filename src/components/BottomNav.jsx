@@ -37,7 +37,7 @@ function NavItem({ item, ui, lang, onClick }) {
       end={item.path === '/'}
       onClick={onClick}
       className={({ isActive }) =>
-        `flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm transition md:justify-start ${
+        `flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-xs transition md:flex-row md:gap-2 md:px-3 md:text-sm md:justify-start ${
           isActive
             ? 'bg-white/10 font-medium'
             : `${ui.sub} hover:bg-white/5`
@@ -61,9 +61,9 @@ export default function BottomNav() {
   return (
     <>
       <nav
-        className={`relative z-20 w-full shrink-0 border-r ${ui.divider} ${ui.navBg} md:w-56`}
+        className={`relative z-20 w-full shrink-0 border-b md:border-b-0 md:border-e ${ui.divider} ${ui.navBg} md:w-56`}
       >
-        <div className="flex gap-2 p-3 md:flex-col">
+        <div className="grid grid-cols-5 gap-1 p-2 md:flex md:flex-col md:gap-2 md:p-3">
           {mainItems.map((item) => (
             <NavItem
               key={item.path}
@@ -76,7 +76,7 @@ export default function BottomNav() {
           <button
             type="button"
             onClick={() => setMoreOpen((value) => !value)}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm transition md:flex-none md:justify-start ${
+            className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-xs transition md:flex-row md:gap-2 md:px-3 md:text-sm md:justify-start ${
               isMoreActive || moreOpen
                 ? 'bg-white/10 font-medium'
                 : `${ui.sub} hover:bg-white/5`
