@@ -6,6 +6,15 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      vite-toolchain:
+        patterns:
+          - vite
+          - "@vitejs/plugin-react"
+      react-runtime:
+        patterns:
+          - react
+          - react-dom
     labels:
       - dependencies
     commit-message:
