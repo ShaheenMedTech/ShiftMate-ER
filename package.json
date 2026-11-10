@@ -33,7 +33,7 @@
     "@tailwindcss/postcss": "^4.3.3",
     "@tauri-apps/cli": "^2.12.1",
     "postcss": "^8.5.28",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.5"
   },
   "allowScripts": {
     "esbuild@0.25.12": true
