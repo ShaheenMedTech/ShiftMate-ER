@@ -21,13 +21,13 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "^6.1.2",
+    "@vitejs/plugin-react": "^6.2.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.468.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.4",
-    "vite": "^8.3.5"
+    "vite": "^8.3.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
