@@ -14,18 +14,18 @@ import {
 import { useApp } from '../hooks/useApp'
 
 const mainItems = [
-  { path: '/', label: 'Dashboard', icon: BarChart3 },
-  { path: '/shift', label: 'Shift', icon: Clock3 },
-  { path: '/cases', label: 'Cases', icon: ClipboardList },
-  { path: '/tasks', label: 'Tasks', icon: ClipboardList },
+  { path: '/', label: 'Dashboard', ar: 'الرئيسية', icon: BarChart3 },
+  { path: '/shift', label: 'Shift', ar: 'المناوبة', icon: Clock3 },
+  { path: '/cases', label: 'Cases', ar: 'الحالات', icon: ClipboardList },
+  { path: '/tasks', label: 'Tasks', ar: 'المهام', icon: ClipboardList },
 ]
 
 const moreItems = [
-  { path: '/reminders', label: 'Reminders', icon: Bell },
-  { path: '/handover', label: 'Handover', icon: Handshake },
-  { path: '/notes', label: 'Notes', icon: FileText },
-  { path: '/history', label: 'History', icon: History },
-  { path: '/settings', label: 'Settings', icon: Settings },
+  { path: '/reminders', label: 'Reminders', ar: 'التذكيرات', icon: Bell },
+  { path: '/handover', label: 'Handover', ar: 'التسليم', icon: Handshake },
+  { path: '/notes', label: 'Notes', ar: 'الملاحظات', icon: FileText },
+  { path: '/history', label: 'History', ar: 'السجل', icon: History },
+  { path: '/settings', label: 'Settings', ar: 'الإعدادات', icon: Settings },
 ]
 
 function NavItem({ item, ui, lang, onClick }) {
@@ -45,7 +45,7 @@ function NavItem({ item, ui, lang, onClick }) {
       }
     >
       <Icon size={18} />
-      <span>{lang === 'ar' ? item.label : item.label}</span>
+      <span>{lang === 'ar' ? item.ar : item.label}</span>
     </NavLink>
   )
 }
