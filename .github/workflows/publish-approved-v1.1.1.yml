@@ -1,0 +1,24 @@
+name: Publish approved ShiftMate ER v1.1.1
+on:
+  push:
+    branches: [publish/approved-v1.1.1]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Verify tested draft and publish
+        run: |
+          set -euo pipefail
+          test "$(gh api repos/$GH_REPO/git/ref/tags/v1.1.1 --jq .object.sha)" = 47d43792513196d7a5e04dfd9b4eb16c71337205
+          test "$(gh run view 42946249408 --json conclusion --jq .conclusion)" = success
+          gh release view v1.1.1 --json isDraft,assets > draft.json
+          jq -e '.isDraft and all(.assets[]; .size > 0)' draft.json
+          for ext in msi exe AppImage rpm deb; do jq -er --arg suffix ".$ext" '.assets[] | select(.name | endswith($suffix)) | .name' draft.json; done
+          gh release edit v1.1.1 --draft=false --latest
+          test "$(gh api repos/$GH_REPO/releases/latest --jq .tag_name)" = v1.1.1
