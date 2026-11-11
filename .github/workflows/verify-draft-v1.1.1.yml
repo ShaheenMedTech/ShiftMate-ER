@@ -106,8 +106,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-        with:
-          releaseId: ${{ needs.draft.outputs.id }}
+      - name: Attach built installers to the existing draft
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(gh release view v1.1.1 --json isDraft --jq .isDraft)" = true
+          mapfile -d '' assets < <(find src-tauri/target/release/bundle -type f \( -name '*.AppImage' -o -name '*.deb' -o -name '*.rpm' -o -name '*-setup.exe' -o -name '*.msi' \) -print0)
+          test "${#assets[@]}" -gt 0
+          gh release upload v1.1.1 "${assets[@]}" --clobber
 
   test-installers:
     needs: publish-tauri
@@ -124,6 +130,7 @@ jobs:
           set -euo pipefail
           gh release download v1.1.1 --pattern '*.deb' --dir packages
           deb=$(find packages -name '*.deb' -print -quit)
+          sudo apt-get update -qq
           sudo apt-get install -y xvfb xdotool "./$deb"
           xvfb-run -a bash -ec 'shiftmate-er & pid=$!; trap "kill $pid || true" EXIT; for i in {1..40}; do xdotool search --onlyvisible --pid "$pid" && exit 0; sleep 1; done; exit 1'
 
