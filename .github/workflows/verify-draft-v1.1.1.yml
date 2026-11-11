@@ -1,0 +1,149 @@
+name: Verify draft installers for ShiftMate ER v1.1.1
+on:
+  push:
+    branches: [delivery/v1.1.1]
+permissions:
+  contents: write
+env:
+  GH_TOKEN: ${{ github.token }}
+  GH_REPO: ${{ github.repository }}
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    outputs:
+      id: ${{ steps.prepare.outputs.id }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: 47d43792513196d7a5e04dfd9b4eb16c71337205
+      - id: prepare
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha=47d43792513196d7a5e04dfd9b4eb16c71337205
+          test "$(git rev-parse HEAD)" = "$sha"
+          test "$(node -p "require('./package.json').version")" = 1.1.1
+          if ! git ls-remote --exit-code origin refs/tags/v1.1.1 >/dev/null; then
+            gh api --method POST "repos/$GH_REPO/git/refs" -f ref=refs/tags/v1.1.1 -f sha="$sha"
+          fi
+          test "$(git ls-remote origin refs/tags/v1.1.1 | cut -f1)" = "$sha"
+          if ! gh release view v1.1.1 >/dev/null 2>&1; then
+            sed -n '/^## \[1.1.1\]/,/^## \[1.1.0\]/{ /^## /d; p; }' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+            gh release create v1.1.1 --draft --verify-tag --title "ShiftMate ER v1.1.1" --notes-file "$RUNNER_TEMP/notes.md"
+          fi
+          gh release view v1.1.1 --json isDraft --jq .isDraft | grep -qx true
+          echo "id=$(gh api repos/$GH_REPO/releases --jq 'map(select(.tag_name=="v1.1.1" and .draft)) | .[0].id')" >> "$GITHUB_OUTPUT"
+  publish-tauri:
+    name: Build ${{ matrix.platform }}
+
+    needs: draft
+    strategy:
+      fail-fast: false
+
+      matrix:
+        include:
+          - platform: ubuntu-22.04
+          - platform: windows-latest
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: v1.1.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            xdg-utils
+
+      - name: Install current linuxdeploy
+        if: matrix.platform == 'ubuntu-22.04'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TOOLS_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/tauri"
+          mkdir -p "$TOOLS_DIR"
+
+          curl -L \
+            --fail \
+            --show-error \
+            --retry 5 \
+            --retry-connrefused \
+            -o "$TOOLS_DIR/linuxdeploy-x86_64.AppImage" \
+            "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
+
+          chmod +x "$TOOLS_DIR/linuxdeploy-x86_64.AppImage"
+
+          "$TOOLS_DIR/linuxdeploy-x86_64.AppImage" \
+            --appimage-extract-and-run \
+            --version
+
+          echo "LINUXDEPLOY_EXCLUDED_LIBRARIES=libwayland-*.so*" >> "$GITHUB_ENV"
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build and publish Tauri release
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        with:
+          releaseId: ${{ needs.draft.outputs.id }}
+
+  test-installers:
+    needs: publish-tauri
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Download, install and launch draft DEB
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release download v1.1.1 --pattern '*.deb' --dir packages
+          deb=$(find packages -name '*.deb' -print -quit)
+          sudo apt-get install -y xvfb xdotool "./$deb"
+          xvfb-run -a bash -ec 'shiftmate-er & pid=$!; trap "kill $pid || true" EXIT; for i in {1..40}; do xdotool search --onlyvisible --pid "$pid" && exit 0; sleep 1; done; exit 1'
+
+      - name: Download, install and launch draft MSI
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          gh release download v1.1.1 --pattern '*.msi' --dir packages
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $msi = Get-ChildItem packages/*.msi | Select-Object -First 1
+          $dir = Join-Path $env:RUNNER_TEMP ShiftMateQA
+          $argsList = "/i `"$($msi.FullName)`" /qn /norestart INSTALLDIR=`"$dir`""
+          $install = Start-Process msiexec.exe -ArgumentList $argsList -Wait -PassThru
+          if ($install.ExitCode -ne 0) { throw "MSI installation failed ($($install.ExitCode))" }
+          $exe = Get-ChildItem $dir -Filter shiftmate-er.exe -Recurse | Select-Object -First 1
+          $app = Start-Process $exe.FullName -PassThru
+          foreach ($i in 1..40) {
+            Start-Sleep 1
+            $app.Refresh()
+            if ($app.HasExited) { throw "Application exited during startup" }
+            if ($app.MainWindowHandle -ne 0) { Stop-Process -Id $app.Id; exit 0 }
+          }
+          throw "No application window appeared"
